@@ -1,9 +1,19 @@
 module Main where
 
+import Options.Applicative
+
 import qualified Dan.AggrLines.Split as Split
 import qualified Dan.AggrLines.FromList as FromList
+import qualified Dan.AggrLines.Mega as Mega
 
 main :: IO ()
 main = do
-    -- Split.countAndShow
-    FromList.countAndShow
+        cmd <- execParser cmdParser
+        case cmd of
+            "split" -> Split.countAndShow
+            "from-list" -> FromList.countAndShow
+            "mega" -> Mega.countAndShow "data.txt"
+    where
+        cmdParser = info (strArgument mempty) mempty
+        --cmdOpt = strOption (long "cmd")
+        --cmdArg = argument str
