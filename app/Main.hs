@@ -11,20 +11,25 @@ import qualified Dan.AggrLines.Split as Split
 import qualified Dan.AggrLines.FromList as FromList
 import qualified Dan.AggrLines.Mega as Mega
 
+
 countAndShow :: ([Str] -> Acc) -> Handle -> IO ()
 countAndShow counter h = mapM_ putStrLn . map showLine . Map.toList . counter =<< fmap S.lines (S.hGetContents h)
     where
         showLine :: (Str, Int) -> [Char]
         showLine (k,v) = S.unpack k <> ":" <> show v
 
+
 main :: IO ()
 main = do
         cmd <- execParser cmdParser
-        case cmd of
-            "split" -> countAndShow Split.countGroups stdin
-            "from-list" -> countAndShow FromList.countGroups stdin
-            "mega" -> Mega.countAndShow "data.txt"
+        countAndShow (cmdToOp cmd) stdin
     where
+        cmdParser :: ParserInfo [Char]
         cmdParser = info (strArgument mempty) mempty
-        --cmdOpt = strOption (long "cmd")
-        --cmdArg = argument str
+
+        cmdToOp :: [Char] -> ([Str] -> Acc)
+        cmdToOp cmd = case cmd of
+            "split" -> Split.countGroups
+            "from-list" -> FromList.countGroups
+            "mega" -> Mega.countGroups
+

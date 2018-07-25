@@ -1,4 +1,4 @@
-module Dan.AggrLines.Mega where
+module Dan.AggrLines.Mega (countGroups) where
 
 import Data.Word (Word8)
 import qualified Data.Map.Strict as M
@@ -24,13 +24,8 @@ lp2 = (,) <$> takeWhileP Nothing (/=sep) <* char sep <*> decimal
 errGroupName :: Str
 errGroupName = S.pack "errors"
 
-cntGrps :: Str -> Acc
-cntGrps = M.fromListWith (+) . fmap parseLine . S.lines
+countGroups :: [Str] -> Acc
+countGroups = M.fromListWith (+) . fmap parseLine
     where
         parseLine :: Str -> (Str, Int)
         parseLine = fromMaybe (errGroupName, 1) . parseMaybe lp2
-
-countAndShow fn = mapM_ putStrLn . map showLine . M.toList . cntGrps =<< S.readFile fn
-    where
-        showLine :: (Str, Int) -> [Char]
-        showLine (k,v) = S.unpack k <> ":" <> show v
