@@ -10,26 +10,29 @@ import Dan.AggrLines.Types (Str, Acc)
 import qualified Dan.AggrLines.Split as Split
 import qualified Dan.AggrLines.FromList as FromList
 import qualified Dan.AggrLines.Mega as Mega
+import qualified Dan.AggrLines.Cond as Cond
 
 
-countAndShow :: ([Str] -> Acc) -> Handle -> IO ()
-countAndShow counter h = mapM_ putStrLn . map showLine . Map.toList . counter =<< fmap S.lines (S.hGetContents h)
+showGroups :: Acc -> IO ()
+showGroups = mapM_ putStrLn . map showLine . Map.toList
     where
         showLine :: (Str, Int) -> [Char]
         showLine (k,v) = S.unpack k <> ":" <> show v
 
+countAndShow :: ([Str] -> Acc) -> Handle -> IO ()
+countAndShow counter h = showGroups . counter =<< fmap S.lines (S.hGetContents h)
+
 
 main :: IO ()
-main = do
-        cmd <- execParser cmdParser
-        countAndShow (cmdToOp cmd) stdin
+main = execParser cmdParser >>= cmdToOp
     where
         cmdParser :: ParserInfo [Char]
         cmdParser = info (strArgument mempty) mempty
 
-        cmdToOp :: [Char] -> ([Str] -> Acc)
+        cmdToOp :: [Char] -> IO ()
         cmdToOp cmd = case cmd of
-            "split" -> Split.countGroups
-            "from-list" -> FromList.countGroups
-            "mega" -> Mega.countGroups
+            "split" -> countAndShow Split.countGroups stdin
+            "from-list" -> countAndShow FromList.countGroups stdin
+            "mega" -> countAndShow Mega.countGroups stdin
+            "conduit" -> Cond.countGroups
 
