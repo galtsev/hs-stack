@@ -26,6 +26,7 @@ dependencies:
 - bytestring
 - optparse-applicative
 - conduit
+- conduit-extra
 
 library:
   source-dirs: src

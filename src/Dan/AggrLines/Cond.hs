@@ -2,6 +2,7 @@ module Dan.AggrLines.Cond where
 
 import System.IO (stdin)
 import Conduit
+import Data.Conduit.Zlib (ungzip)
 import Data.Maybe (fromMaybe)
 import qualified Data.Map.Strict as Map
 import qualified Data.ByteString.Char8 as S
@@ -19,6 +20,7 @@ upd :: Acc -> (Str, Int) -> Acc
 upd acc (gr, v) = Map.insertWith (+) gr v acc
 
 pipe = sourceHandle stdin
+    .| ungzip
     .| linesUnboundedAsciiC
     .| mapC parseLine
     .| foldlC upd Map.empty
